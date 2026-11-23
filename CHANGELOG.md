@@ -1,5 +1,21 @@
 # 更新日志
 
+## v3.1.1-yuweiEX.2
+
+> 本版本为第三方修改版，基于原作者 Zhalslar 的 v3.1.1。详见 [NOTICE.md](NOTICE.md)。
+
+### 修复
+
+- **空文本导致重复发送同一句短语音**（`core/service.py`）。
+
+  原版 `inference()` 用 `if text:` 判断后才覆盖 `params["text"]`，文本为空时不会赋值，于是沿用了 `default_params.text` 里预置的模板文本（默认 `"おかえりなさい"`），把模板内容当成正常回复合成并发出。
+
+  叠加两个配置因素后问题被放大：`auto.tts_prob = 1.0` 使每条回复都转语音；`cache.expire_hours = 0` 使音频永不过期。首次合成后，后续每次空文本都会命中同一份缓存，反复发出同一条约 1 秒的语音。
+
+  修改为：空文本或纯空白文本直接返回失败结果并记录 warning，不再发起合成请求。同时必须把 `params["text"]` 无条件赋值为入参，杜绝模板文本被误用。
+
+  > 若你的配置里 `default_params.text` 仍是模板值，建议清空；同时建议将 `cache.expire_hours` 设为非 0（如 24），避免错误音频被长期缓存。
+
 ## v3.1.1-yuweiEX.1
 
 > 本版本为第三方修改版，基于原作者 Zhalslar 的 v3.1.1。详见 [NOTICE.md](NOTICE.md)。

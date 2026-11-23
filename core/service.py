@@ -41,8 +41,14 @@ class GPTSoVITSService:
     ) -> GSVRequestResult:
         """TTS 推理"""
         params = self.default_params.copy()
-        if text:
-            params["text"] = text
+
+        # 空文本必须显式拦截：default_params 里带着模板文本，
+        # 若直接沿用会把模板内容合成出去（曾导致每次都发同一句短语音）。
+        if not text or not text.strip():
+            logger.warning("TTS 推理被跳过: 合成文本为空")
+            return GSVRequestResult(ok=False, error="合成文本为空，已跳过")
+
+        params["text"] = text
 
         if extra_params:
             filtered_params = {

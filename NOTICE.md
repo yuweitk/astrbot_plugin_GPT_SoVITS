@@ -21,11 +21,15 @@
 | 修改者 | yuweiEX（GitHub: [yuweitk](https://github.com/yuweitk)） |
 | 维护仓库 | https://github.com/yuweitk/astrbot_plugin_GPT_SoVITS |
 | 镜像仓库 | https://gitee.com/yuweiEX/astrbot_plugin_GPT_SoVITS |
-| 版本号 | `v3.1.1-yuweiEX.1` |
+| 版本号 | `v3.1.1-yuweiEX.2` |
 
 ## 修改内容
 
-仅涉及以下三处，**未改动**原作者的音频合成、情绪参数、缓存等核心逻辑。
+仅涉及以下五处，**未改动**原作者的音频合成、情绪参数、缓存等核心逻辑。
+
+### 0. 空文本拦截（`core/service.py`）
+
+原版 `inference()` 仅在 `text` 非空时覆盖 `params["text"]`，文本为空时会沿用 `default_params.text` 的模板值，把模板内容合成后发出。现已改为空文本直接返回失败结果并记录 warning。
 
 ### 1. 日语原文补中文译文（`core/translator.py`）
 
