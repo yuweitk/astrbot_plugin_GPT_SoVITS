@@ -124,6 +124,12 @@ class CacheConfig(ConfigNode):
     path: str
 
 
+class ScopeConfig(ConfigNode):
+    mode: str
+    deny_reply: str
+    sessions: list[dict[str, Any]]
+
+
 class PluginConfig(ConfigNode):
     enabled: bool
     auto: AutoConfig
@@ -133,6 +139,7 @@ class PluginConfig(ConfigNode):
     judge: JudgeConfig
     translate: TranslateConfig
     cache: CacheConfig
+    scope: ScopeConfig
     entry_storage: list[dict[str, Any]]
 
     _plugin_name: str = "astrbot_plugin_GPT_SoVITS"
@@ -145,6 +152,14 @@ class PluginConfig(ConfigNode):
                 "provider_id": "",
                 "keep_text": True,
                 "text_template": "{text}",
+            }
+
+        # 兼容旧配置：缺少 scope 段时补默认值，避免 ConfigNode 报错
+        if not isinstance(cfg.get("scope"), MutableMapping):
+            cfg["scope"] = {
+                "mode": "blacklist",
+                "deny_reply": "",
+                "sessions": [],
             }
 
         super().__init__(cfg)

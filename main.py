@@ -13,6 +13,7 @@ from .core.config import PluginConfig
 from .core.emotion import EmotionJudger
 from .core.entry import EntryManager
 from .core.local_data import LocalDataManager
+from .core.scope import ScopeManager
 from .core.service import GPTSoVITSService
 from .core.translator import Translator
 
@@ -26,6 +27,7 @@ class GPTSoVITSPlugin(Star):
         self.judger = EmotionJudger(self.cfg)
         self.translator = Translator(self.cfg)
         self.service = GPTSoVITSService(self.cfg, self.client, self.local_data)
+        self.scope = ScopeManager(self.cfg)
 
     async def initialize(self):
         if self.cfg.enabled:
@@ -70,6 +72,8 @@ class GPTSoVITSPlugin(Star):
     async def on_decorating_result(self, event: AstrMessageEvent):
         """消息入口"""
         if not self.cfg.enabled:
+            return
+        if not self.scope.is_allowed(event.unified_msg_origin):
             return
         cfg = self.cfg.auto
 
@@ -135,6 +139,11 @@ class GPTSoVITSPlugin(Star):
         """说 <内容>, 直接调用GSV合成语音"""
         if not self.cfg.enabled:
             return
+        if not self.scope.is_allowed(event.unified_msg_origin):
+            reply = (self.cfg.scope.deny_reply or "").strip()
+            if reply:
+                yield event.plain_result(reply)
+            return
 
         text = event.message_str.partition(" ")[2]
 
@@ -163,6 +172,14 @@ class GPTSoVITSPlugin(Star):
             chain.append(Plain(note))
         yield event.chain_result(chain)
 
+    @filter.command("语音状态", alias={"gsv状态", "gsvstatus"})
+    async def on_status(self, event: AstrMessageEvent):
+        """查看当前会话的 UMO 与语音开关状态"""
+        umo = event.unified_msg_origin
+        yield event.plain_result(
+            f"当前会话 UMO：{umo}\n{self.scope.describe(umo)}"
+        )
+
     @filter.command("重启GSV", alias={"重启gsv"})
     async def tts_control(self, event: AstrMessageEvent):
         """重启GPT_SoVITS"""
@@ -179,6 +196,8 @@ class GPTSoVITSPlugin(Star):
             message(string): 要讲的话
         """
         try:
+            if not self.scope.is_allowed(event.unified_msg_origin):
+                return "当前会话已禁用语音功能"
             params = await self._get_emotion_params(event, message)
 
             if self.cfg.translate.enabled:

@@ -339,6 +339,67 @@
       }
     }
   },
+  "scope": {
+    "description": "会话黑白名单",
+    "type": "object",
+    "hint": "按会话 UMO 控制 GPT-SoVITS 是否生效。可在此实现「某些群禁用语音」「只在指定群启用语音」",
+    "items": {
+      "mode": {
+        "description": "生效模式",
+        "type": "string",
+        "options": [
+          "blacklist",
+          "whitelist",
+          "all"
+        ],
+        "labels": [
+          "黑名单（列表内禁用，其余启用）",
+          "白名单（仅列表内启用）",
+          "全部启用（忽略列表）"
+        ],
+        "default": "blacklist",
+        "hint": "黑名单：列表里 enabled=false 的会话被禁用，其余正常；白名单：只有列表里 enabled=true 的会话启用；全部启用：忽略列表"
+      },
+      "deny_reply": {
+        "description": "被禁用时的提示语",
+        "type": "string",
+        "default": "",
+        "hint": "仅在手动发送「说」指令且该会话被禁用时回复。留空则静默忽略"
+      },
+      "sessions": {
+        "description": "会话名单",
+        "type": "template_list",
+        "default": [],
+        "hint": "填写会话 UMO（形如 aiocqhttp:GroupMessage:123456，也可只填群号 123456）。黑名单模式下 enabled 设为 false 即禁言该群；白名单模式下 enabled 设为 true 即启用",
+        "templates": {
+          "session": {
+            "name": "会话",
+            "display_item": "umo",
+            "items": {
+              "umo": {
+                "description": "会话 UMO",
+                "type": "string",
+                "default": "",
+                "hint": "如 aiocqhttp:GroupMessage:123456；也可只填群号 123456"
+              },
+              "enabled": {
+                "description": "允许语音",
+                "type": "bool",
+                "default": false,
+                "hint": "黑名单模式：关=禁用该会话语音；白名单模式：开=启用该会话语音"
+              },
+              "note": {
+                "description": "备注",
+                "type": "string",
+                "default": "",
+                "hint": "仅用于自己辨认，例如「测试群」"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "entry_storage": {
     "description": "情绪参数配置",
     "hint": "可自定义多套情绪参数，并定义对应触发词。由此实现不同情绪的语音",

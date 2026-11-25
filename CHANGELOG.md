@@ -1,5 +1,23 @@
 # 更新日志
 
+## v3.2.0
+
+> 本版本为第三方修改版，基于原作者 Zhalslar 的 v3.1.1。详见 [NOTICE.md](NOTICE.md)。
+
+### 新增
+
+- 新增**会话黑白名单**（`scope`），可按会话 UMO 控制 GPT-SoVITS 是否生效：
+  - `scope.mode`：`blacklist`（列表内禁用）/ `whitelist`（仅列表内启用）/ `all`（全部启用）。
+  - `scope.sessions`：会话名单，支持填完整 UMO（`aiocqhttp:GroupMessage:123456`）或只填群号（`123456`）。
+  - `scope.deny_reply`：手动 `说` 指令在禁用会话被拦下时的提示语，留空则静默。
+  - 覆盖自动转语音、`说` 指令、LLM 工具三条链路。
+  - 面板修改后即时生效，无需重载插件。
+- 新增指令 `语音状态`（别名 `gsv状态` / `gsvstatus`）：输出当前会话 UMO 与判定结果，方便复制到面板配置。
+
+### 说明
+
+- 本功能完全在插件内实现，不修改 AstrBot 本体。
+
 ## v3.1.1-yuweiEX.2
 
 > 本版本为第三方修改版，基于原作者 Zhalslar 的 v3.1.1。详见 [NOTICE.md](NOTICE.md)。
@@ -22,14 +40,17 @@
 
 ### 新增
 
-- 日语原文回复时，语音发出后补发**中文译文**。原版仅对中文原文补发原文，日语原文不附带任何文本。
-- `Translator.to_chinese()` 方法，与原有 `to_japanese()` 对称。
-- 翻译失败或返回空时捕获异常并回退原文，记录 warning，不再中断语音发送。
+- 新增**会话黑白名单**（`scope`），可按会话 UMO 控制 GPT-SoVITS 是否生效：
+  - `scope.mode`：`blacklist`（列表内禁用）/ `whitelist`（仅列表内启用）/ `all`（全部启用）。
+  - `scope.sessions`：会话名单，支持填完整 UMO（`aiocqhttp:GroupMessage:123456`）或只填群号（`123456`）。
+  - `scope.deny_reply`：手动 `说` 指令在禁用会话被拦下时的提示语，留空则静默。
+  - 覆盖自动转语音、`说` 指令、LLM 工具三条链路。
+  - 面板修改后即时生效，无需重载插件。
+- 新增指令 `语音状态`（别名 `gsv状态` / `gsvstatus`）：输出当前会话 UMO 与判定结果，方便复制到面板配置。
 
-### 调整
+### 说明
 
-- `translate` 配置项 `hint` 文案更新，说明「中文补原文、日语补译文」的新行为。
-- `core/client.py` 为 `sock_connect` 显式设置 5 秒超时，避免本地 TTS 服务未启动时连接阶段长时间挂起。
+- 本功能完全在插件内实现，不修改 AstrBot 本体。
 
 ## v3.1.1
 
